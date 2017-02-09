@@ -15,7 +15,9 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
+from face_recog.views import detect
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    url(r'^face_recog/detect/$', detect, name='detect')
 ]
