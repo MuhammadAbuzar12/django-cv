@@ -6,77 +6,57 @@ import json
 import cv2
 from django.shortcuts import render
 import os
+import pdb
 
-HAARCASCADE_EYE_PATH = '{base_path}/haar_cascades/haarcascade_eye.xml'.format(base_path=os.path.abspath(os.path.dirname(__file__)))
-HAARCASCADE_FRONTALFACE_PATH = '{base_path}/haar_cascades/haarcascade_frontalface_default.xml'.format(base_path=os.path.abspath(os.path.dirname(__file__)))
+HAARCASCADE_EYE_PATH = "{base_path}/haar_cascades/haarcascade_eye.xml".format(base_path=os.path.abspath(os.path.dirname(__file__)))
+HAARCASCADE_FRONTALFACE_PATH = "{base_path}/haar_cascades/haarcascade_frontalface_default.xml".format(base_path=os.path.abspath(os.path.dirname(__file__)))
  
 @csrf_exempt
 def detect(request):
-	# initialize the data dictionary to be returned by the request
     data = {"success": False}
-	# check to see if this is a post request
+
     if request.method == "POST":
-		# check to see if an image was uploaded
         if request.FILES.get("image", None) is not None:
-			# grab the uploaded image
             image = _grab_image(stream=request.FILES["image"])
  
-		# otherwise, assume that a URL was passed in
         else:
-			# grab the URL from the request
             url = request.POST.get("url", None)
  
-			# if the URL is None, then return an error
             if url is None:
                 data["error"] = "No URL provided."
                 return JsonResponse(data)
  
-			# load the image and convert
             image = _grab_image(url=url)
+
         image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         eye_recog = cv2.CascadeClassifier(HAARCASCADE_EYE_PATH)
         face_recog = cv2.CascadeClassifier(HAARCASCADE_FRONTALFACE_PATH)
         eye_rects = eye_recog.detectMultiScale(image, 1.3, 5)
         
         face_rects = face_recog.detectMultiScale(image, 1.3, 5)
-        
-        eye_measures = [[x, y, x+w, y+h] for (x,y,w,h) in eye_rects]
-        face_measures = [[x, y, x+w, y+h] for (x,y,w,h) in face_rects]
+        eye_measures = [(int(x), int(y), int(x+w), int(y+h)) for (x,y,w,h) in eye_rects]
+        face_measures = [(int(x), int(y), int(x+w), int(y+h)) for (x,y,w,h) in face_rects]
 
-        data.update({"num_faces": len(rects), "eye": eye_measures, "faces": face_measures, "success": True})
+        data.update({"num_faces": len(face_measures), "eye": eye_measures, "faces": face_measures, "success": True})
+        print(JsonResponse(data))
  
- 
-		### START WRAPPING OF COMPUTER VISION APP
-		# Insert code here to process the image and update
-		# the `data` dictionary with your results
-		### END WRAPPING OF COMPUTER VISION APP
- 
-		# update the data dictionary
-        data["success"] = True
- 
-	# return a JSON response
     return JsonResponse(data)
  
 def _grab_image(path=None, stream=None, url=None):
-	# if the path is not None, then load the image from disk
+
     if path is not None:
         image = cv2.imread(path)
  
-	# otherwise, the image does not reside on disk
     else:	
-		# if the URL is not None, then download the image
         if url is not None:
-            resp = urllib.urlopen(url)
+            resp = urllib.request.urlopen(url)
             data = resp.read()
  
-		# if the stream is not None, then the image has been uploaded
         elif stream is not None:
             data = stream.read()
  
-		# convert the image to a NumPy array and then read it into
-		# OpenCV format
         image = np.asarray(bytearray(data), dtype="uint8")
         image = cv2.imdecode(image, cv2.IMREAD_COLOR)
+
  
-	# return the image
     return image
