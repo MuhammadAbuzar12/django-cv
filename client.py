@@ -4,7 +4,7 @@ import requests
 import cv2
  
 # define the URL to our face detection API
-url = "http://localhost:8000/face_detection/detect/"
+url = "http://localhost:8000/face_recog/detect/"
  
 # use our face detection API to find faces in images via image URL
 image = cv2.imread("obama.jpg")
