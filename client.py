@@ -2,15 +2,15 @@
 # import the necessary packages
 import requests
 import cv2
- 
+
 # define the URL to our face detection API
-url = "http://localhost:8000/face_detection/detect/"
+url = "http://localhost:8000/face_recog/detect/"
  
 # use our face detection API to find faces in images via image URL
 image = cv2.imread("obama.jpg")
 payload = {"url": "http://www.pyimagesearch.com/wp-content/uploads/2015/05/obama.jpg"}
 r = requests.post(url, data=payload).json()
-print "obama.jpg: {}".format(r)
+print( "obama.jpg: {}".format(r))
  
 # loop over the faces and draw them on the image
 for (startX, startY, endX, endY) in r["faces"]:
@@ -25,7 +25,7 @@ cv2.waitKey(0)
 image = cv2.imread("adrian.jpg")
 payload = {"image": open("adrian.jpg", "rb")}
 r = requests.post(url, files=payload).json()
-print "adrian.jpg: {}".format(r)
+print( "adrian.jpg: {}".format(r))
  
 # loop over the faces and draw them on the image
 for (startX, startY, endX, endY) in r["faces"]:
