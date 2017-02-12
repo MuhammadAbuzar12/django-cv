@@ -15,9 +15,10 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
-from face_recog.views import detect
+from face_recog.views import detect, landmarks
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^face_recog/detect/$', detect, name='detect')
+    url(r'^face_recog/detect/$', detect, name='detect'),
+    url(r'^face_landmarks/detect/$', landmarks, name='landmarks')
 ]
